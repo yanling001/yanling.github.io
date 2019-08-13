@@ -1,0 +1,88 @@
+public class Mydatadesign {
+    public static void main(String args[]){
+        MinStack<Students> minStack=new MinStack();
+        minStack.push(new Students(10,"zhangsan"));
+        minStack.push(new Students(18,"lisi"));
+        minStack.push(new Students(9,"wangwu"));
+        minStack.pop();
+        System.out.println(minStack.top());
+        System.out.println(minStack.getMin());
+    }
+}
+class MinStack <T>  {
+        Object [] entry =null;
+        Stack<T> stack=new Stack<T>();
+        int size=0;
+        int maxsize;
+        T min;
+    /** initialize your data structure here. */
+    public MinStack(){
+       this.entry=new  Object[20];
+       this.maxsize=20;
+
+    }
+
+    public void push(T t) {
+        if (size==0) {
+            stack.push(t);
+            entry[size]=t;
+            size++;
+        }
+     else {
+          if (compare(t,stack.peek())==-1)
+              stack.push(t);
+          entry[size]=t;
+          size++;
+
+      }
+    }
+
+    public T getMin() {
+        return stack.peek();
+    }
+
+    public void pop() {
+        if (compare(stack.peek(),(T)entry[size-1])==0){
+            stack.pop();
+        }
+         entry[size]=null;
+         size--;
+    }
+
+    public T top() {
+         return (T)entry[size-1];
+    }
+   private  int  compare(T t,T t1){
+     if ( ((Comparable)t).compareTo(t1)==-1){
+         return -1;
+       }
+       else if (((Comparable)t).compareTo(t1)==1){
+           return 1;
+     }else
+         return 0;
+   }
+}
+class Students implements Comparable<Students>{
+    int age;
+    String name;
+    Students(int age,String name){
+        this.age=age; this.name=name;
+    }
+    @Override
+    public int compareTo(Students o) {
+        if (this.age-o.age>0)
+            return 1;
+        if (this.age-o.age<0)
+            return -1;
+       else
+        return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Students{" +
+                "age=" + age +
+                ", name='" + name + '\'' +
+                '}';
+    }
+}
