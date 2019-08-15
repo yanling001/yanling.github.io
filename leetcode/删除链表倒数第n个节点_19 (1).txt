@@ -1,0 +1,19 @@
+//自己的菜鸡解法
+public class 删除链表的倒数第N个节点_19 {
+    public ListNode removeNthFromEnd(ListNode head, int n) {
+        ListNode first=head;
+        ListNode botten=head;
+        int num=0;
+        while(first!=null){
+            num++;
+            first=first.next;
+        }
+        int index=num-n;
+        while (index>0){
+            botten=head.next;
+            index--;
+        }
+        botten.next=botten.next.next;
+        return head;
+    }
+}
