@@ -1,7 +1,15 @@
 //自己的菜鸡解法
-public class 删除链表的倒数第N个节点_19 {
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
     public ListNode removeNthFromEnd(ListNode head, int n) {
-        ListNode first=head;
+          ListNode first=head;
         ListNode botten=head;
         int num=0;
         while(first!=null){
@@ -9,11 +17,17 @@ public class 删除链表的倒数第N个节点_19 {
             first=first.next;
         }
         int index=num-n;
-        while (index>0){
-            botten=head.next;
+        if(index==0)
+            return head.next;
+        while (index>1){
+            botten=botten.next;
             index--;
         }
+        System.out.println(botten.val);
+        if(index<num-1)
         botten.next=botten.next.next;
+        else
+            botten.next=null;
         return head;
     }
 }
