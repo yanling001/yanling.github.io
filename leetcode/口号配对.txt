@@ -1,0 +1,27 @@
+class Solution {
+       static Map<Character,Character> map=new HashMap();
+     {
+      
+           map.put('{','}');
+            map.put('[',']');
+            map.put('(',')');
+             
+            }
+    public boolean isValid(String s) {
+          Stack<Character> stack=new Stack<Character>();
+        for (int i=0;i<s.length();i++){
+            if (stack.empty()){
+                stack.push(s.charAt(i));
+                continue;
+            }
+            if(map.get(stack.peek())==null)
+                return false;
+            if (map.get(stack.peek()).equals(s.charAt(i))){
+                     stack.pop();
+            }else stack.push(s.charAt(i));
+        }
+        if (stack.empty())
+            return true;
+        else return false;
+    }
+}
