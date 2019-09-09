@@ -1,0 +1,19 @@
+class Solution {
+//（先压所有左节点->然后依次弹出左节点并将遍历节点迭代到当请前遍历节点的右节点）
+    public List<Integer> inorderTraversal(TreeNode root) {
+          List<Integer> list=new ArrayList<>();
+        Stack<TreeNode> stack=new Stack<TreeNode>();
+        TreeNode temp=root;
+        while (temp!=null||!stack.isEmpty()){
+         //先将所有的左节点压入栈
+          while (temp!=null){   
+              stack.push(temp);
+              temp=temp.left;
+          }
+          temp=stack.pop();
+         list.add(temp.val);
+         temp=temp.right;
+        }
+        return list;
+    }
+}

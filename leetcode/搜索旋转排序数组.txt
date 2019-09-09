@@ -1,0 +1,51 @@
+class Solution {
+   public  int search(int[] nums, int target) {
+       if(nums.length==0)
+           return -1;
+           //第一步查找交换下标
+        int index =findindex(nums);
+        System.out.println( index);
+       if (index==0){
+              System.out.println( index);
+            return findnum(0,nums.length-1,nums,target);
+       }
+       
+       if (target<nums[index]||target>nums[index-1])
+            return -1;
+        int left,right;
+        if (target>nums[nums.length-1]) {
+            left=0; right=index-1;
+            //二分查找
+            return findnum(left,right,nums,target);
+        }else {
+            left=index; right=nums.length-1;
+            //二分查找
+            return findnum(left,right,nums,target);
+        }
+
+    }
+
+    private  int findnum(int left, int right, int[] nums, int target) {
+        int mid=(left+right)/2;
+        if (target==nums[mid]){
+          return mid;
+        }
+        if (left==right)
+            return -1;
+        if (target>nums[mid]){
+           return findnum(mid+1,right,nums,target);
+        }
+        else
+            return findnum(left,mid,nums,target);
+    }
+
+    private  int findindex(int[] nums) {
+        int min=0;
+        for (int i=1;i<nums.length;i++){
+            if (nums[i]<nums[min])
+                min=i;
+
+        }
+        return min;
+    }
+}
