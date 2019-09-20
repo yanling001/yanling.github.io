@@ -1,0 +1,28 @@
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+        if(head==null)
+            return null;
+       //将链表成环
+        ListNode temp=head;
+        int count=1;
+        while (temp.next!=null){
+            temp=temp.next;
+            count++;
+        }
+        temp.next=head;
+        for (int i=1;i<=count-k%count;i++){
+            temp=temp.next;
+        }
+        ListNode ans=temp.next;
+        temp.next=null;
+        return ans;
+    }
+}
