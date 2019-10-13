@@ -1,0 +1,58 @@
+package Mytree;
+//字典树
+class Node{
+	Character c;//节点字母
+	boolean is;//是不是单词的结尾
+	Node [] child=new Node[26];//孩子节点数组t
+	Node (Character c){
+		this.c=c; this.is=false;
+	}
+}
+public class TireNode {
+	Node root;
+	TireNode(){
+		this.root=new Node (null);
+	}
+  public  void insert(String world) {
+	  Node tx=root;
+    for(int i=0;i<world.length();i++){
+    	char t=world.charAt(i);
+    	if(tx.child[t-'a']==null){
+    		tx.child[t-'a']=new Node(t);
+    		tx=tx.child[t-'a'];
+    	}else{
+    		tx=tx.child[t-'a'];
+    	}
+    }
+    tx.is=true;
+}
+  public  Boolean search(String str) {
+	  Node tx=root;
+	 for(int i=0;i<str.length();i++){
+		char t=str.charAt(i);
+		 if(tx.child[t-'a']==null){
+			return false;
+		 }
+		 if(i==str.length()-1&&tx.child[t-'a'].is){
+			 return true;
+		 }
+		 tx=tx.child[t-'a'];
+	 }
+		return false;
+}
+  public boolean startsWith(String prefix) {
+	  Node tx=root;
+		 for(int i=0;i<prefix.length();i++){
+			char t=prefix.charAt(i);
+			 if(tx.child[t-'a']==null){
+				return false;
+			 }
+			 if(i==prefix.length()-1){
+				 return true;
+			 }
+			 tx=tx.child[t-'a'];
+		 }
+			return false;
+   
+  }
+}

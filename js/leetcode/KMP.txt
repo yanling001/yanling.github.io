@@ -1,0 +1,76 @@
+package KMP;
+
+public class Kmp {
+   public static void main(String[] args) {
+	   String str ="ababcabaa";
+	   //String str0="abaacababcac"; 
+	   //String str1 ="ababc";
+	   String str0="abcdef565465165";
+	   String str1="65465";
+	    int [] next =findnext(str1);
+	   int is=kmp(str0,str1);
+	    for(int i=0;i<str1.length();i++)
+	    	System.out.print(next[i]+" ");
+	    System.out.print(is+"--ans");
+} 
+    
+
+private static int  kmp(String haystack, String needle) {
+	if(haystack.length()==0&&needle.length()==0)
+		return 0;
+	if(needle.length()==0)
+		return -1;
+	int next[]=findnext(needle);
+	int i=0; int j=0;
+	while(i<haystack.length()&&j<needle.length()){
+			//如果匹配
+			if(haystack.charAt(i)==needle.charAt(j)){
+				i++;
+				j++;
+			}else{
+				//不匹配str0中的i不变str1中的j变
+				if(j>0)
+				j=next[j-1];//j按照next数组向前回溯
+				else{
+					j=0;
+					i++;
+				}
+				if(haystack.length()-i-(needle.length()-j)<0)
+					return -1;
+			}
+		}
+	
+	return i-j;
+}
+
+//主要查找最长公共前后串的长度例如（a）babc（a）的长度就是一记录下标一
+private static int[] findnext(String str) {
+	int next []=new int[str.length()];
+	next[0]=0;
+	for(int i=1;i<str.length();i++){
+		char t=str.charAt(i);
+		//如果新加入的字符与str.charAt(next[i-1])的字符相同
+		//例如（a）babc（a）：next【i-1】=1：新加入b与str【1】相等就让next[i]=next[i-1]+1及ababcab就是2;
+		if(t==str.charAt(next[i-1])){
+			next[i]=next[i-1]+1;
+	}else{
+		int j=next[i-1];
+		//如果新加入的字符与str.charAt(next[i-1])的字符不相同
+		//就往前找例如（aba）bc（aba）str【next【i-1】】为b加入a
+		//则往前找：abab b以前的j=next[b的下表-1]的str.charAt(j)是否与新加入的a相等
+		while(t!=str.charAt(j)){
+			if(j==0&&t!=str.charAt(j)){
+				next[i]=0;
+				break;
+			}
+			j=next[j-1];
+		}
+		if(t==str.charAt(j))
+		next[i]=next[j]+1;
+	}
+	}
+	return next;
+
+
+}
+}

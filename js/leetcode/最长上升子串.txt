@@ -1,0 +1,94 @@
+package DynamicPlan;
+//最长公共子序列
+public class LongestCommonSubsequence {
+public static void main(String[] args) {
+	int [] s=new int[]{3,5,6,2,5,4,19,5,6,7,12};//{3,5,6,2,5,4,19,5,6,7,12};
+	int ans=findlongest(s);
+	 ans=findlongest2(s);
+	System.out.println(ans);
+}
+//优化动态规划将O(n*N)转化为O(N*LOG(N))
+/*
+ * 伪算法：.维护temp数组
+ *       当遇到s[i]比temp数组中末尾元素大 直接插入
+ *       当遇到s[i]比temp数组中末尾元素小找到temp中比是s[i]大的最小元素并将此元素替换为s[i]
+ */
+private static int findlongest2(int[] s) {
+	if(s.length==0)
+		return 0;
+	int ans=1;
+	int temp[]=new int[s.length];
+    temp[0]=s[0];
+	for(int i=1;i<s.length;i++){
+	if(temp[ans-1]<s[i]){
+		temp[ans]=s[i];
+		ans++;
+	}else{
+		int index=findindex02(i,s,temp,0,ans-1);
+		//System.out.println(index);
+		temp[index]=s[i];
+	}
+	
+	}
+	return ans;
+}
+//二分查找（查找比是s[i]大的最小元素的下标)
+private static int findindex02(int i, int s[],int[] temp,int start,int end) { 
+	int index;
+	index=(start+end)/2;
+  if(index==0){
+		return index;
+  }
+  if(s[i]<=temp[index]&&s[i]>temp[index-1]){
+     return index;
+     }
+ 
+ if(s[i]>temp[index]){
+	    return findindex02(i,s,temp,index+1,end);
+	   }
+ else {
+		  return   findindex02(i,s,temp,start,index-1);
+		     }
+  
+}
+//使用动态规划时间复杂度为O(N*N)
+private static int findlongest(int[] s) {
+   int [] dp=new int[s.length];
+   //dp转移
+   dp[0]=1;
+   //找到要当前节点的最大值
+   for(int i=1;i<s.length;i++){
+	   if(findmax(dp,i,s)==i)
+		   dp[i]=1;
+	   else
+	    	dp[i]=dp[findmax(dp,i,s)]+1;
+   }
+   //返回dp的最大值
+	return max(dp);
+}	
+
+private static int max(int[] dp) {
+  int max=0;
+  for(int i=0;i<dp.length;i++){
+    if(max<dp[i])
+    	max=dp[i];
+  }
+	return max;
+}
+//找到当前dp数组中比s[i]>s[j]小的节点的最大值的下标
+private static int findmax(int[] dp, int i,int s[]) { 
+	int max=0; int index=0;
+	boolean flog=false;
+	for(int j=0;j<i;j++){
+		//比s[i]>s[j]小的节点的最大值的下标j
+		if(dp[j]>max && s[i]>s[j]){
+            flog=true;
+			max=dp[j];
+			index=j;
+		}
+	} 
+	if(flog)
+	return index;
+	else return i;
+}
+}
