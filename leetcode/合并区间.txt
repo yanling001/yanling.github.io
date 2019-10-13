@@ -1,6 +1,6 @@
 package leetcode;
 
-public class 合并区间 {
+public class 鍚堝苟鍖洪棿 {
 
     public int[][] merge(int[][] intervals) {
         int i=intervals.length;
