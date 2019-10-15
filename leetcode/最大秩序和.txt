@@ -1,0 +1,16 @@
+func maxSubArray(nums []int) int {
+     ans:=nums[0]
+      sum:=0
+	for _,valu:=range nums {
+		if sum>0  {
+			sum+=valu
+		}else {
+			sum=valu
+			}
+		if sum >ans{
+			ans=sum
+		}
+
+	}
+	return ans
+}
