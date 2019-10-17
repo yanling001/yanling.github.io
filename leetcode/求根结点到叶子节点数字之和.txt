@@ -1,0 +1,25 @@
+func sumNumbers(root *TreeNode) int {
+    if root==nil{
+        return 0
+    }
+   var ans int=0;
+   sum(root,0,&ans)
+   return ans
+}
+
+func   sum(node * TreeNode,num int,ans *int) int{
+    if node==nil{
+        return 0
+    }
+	if node.Left==nil&&node.Right==nil {
+		*ans=*ans+num*10+node.Val
+         	fmt.Println("ans = ,num = ",*ans,num)
+        return 0
+	}
+    
+	num=num*10+node.Val
+	sum(node.Left,num,ans)
+	sum(node.Right,num,ans)
+	
+	return *ans
+}
