@@ -1,0 +1,15 @@
+class Solution {
+    public boolean canJump(int[] nums) {
+        boolean ans[]=new boolean[nums.length];
+        ans[nums.length-1]=true;
+        for(int i=nums.length-1-1;i>=0;i--){
+            int j=0;
+            while(j<nums[i]&& i+j+1<nums.length){
+                j++;
+                if(ans[i]) break;
+                ans[i]=ans[i+j];
+            }
+        } 
+        return ans[0];
+    }
+}
