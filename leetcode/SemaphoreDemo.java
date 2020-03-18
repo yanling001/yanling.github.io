@@ -9,7 +9,16 @@ public class SemaphoreDemo {
     static int a=0;
     public static void main(String[] args) {
         Semaphore semaphore = new Semaphore(1);
-     //   ExecutorService executorService = Executors.newFixedThreadPool(2);
-
+       ExecutorService executorService = Executors.newFixedThreadPool(2);
+       for (int i=0;i<=100;i++){
+           try {
+               semaphore.acquire();
+               System.out.println(a++);
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }finally {
+               semaphore.release();
+           }
+       }
     }
 }
