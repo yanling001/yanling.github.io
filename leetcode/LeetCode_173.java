@@ -1,7 +1,7 @@
 package leetcode;
 
 import java.util.Stack;
-
+// 二叉搜索树的迭代器
 public class LeetCode_173 {
     static  Stack<TreeNode> stack=new Stack<>();
     public LeetCode_173(TreeNode root) {
