@@ -63,6 +63,56 @@
 ###### 主节点的异步处理
 * 主节点不但负责数据读写，还负责把写命令同步给从节点，写命令的发送过程是异步完成，也就是说主节点处理完写命令后立即返回客户度，并不等待从节点复制完成。
 
-### 哨兵模式(Sentinel)
+### [哨兵模式(Sentinel)](https://www.jianshu.com/p/06ab9daf921d)
+#### 什么是哨兵模式 解决祝主服务器宕机问题
+* 哨兵模式是一种特殊的模式，首先Redis提供了哨兵的命令，哨兵是一个独立的进程，作为进程，它会独立运行。其原理是哨兵通过发送命令，等待Redis服务器响应，从而监控运行的多个Redis实例。
+![image](https://upload-images.jianshu.io/upload_images/11320039-57a77ca2757d0924.png?imageMogr2/auto-orient/strip|imageView2/2/w/507/format/webp)
+#### 哨兵的作用 
+1. 通过发送命令，让Redis服务器返回监控其运行状态，包括主服务器和从服务器。
+2. 当哨兵监测到master宕机，会自动将slave切换成master，然后通过发布订阅模式通知其他的从服务器，修改配置文件，让它们切换主机。
+##### 故障切换
+###### 主观下线与客观下线
+>假设主服务器宕机，哨兵1先检测到这个结果，系统并不会马上进行failover过程，仅仅是哨兵1主观的认为主服务器不可用，这个现象成为主观下线。当后面的哨兵也检测到主服务器不可用，并且数量达到一定值时，那么哨兵之间就会进行一次投票，投票的结果由一个哨兵发起，进行failover操作。切换成功后，就会通过发布订阅模式，让各个哨兵把自己监控的从服务器实现切换主机，这个过程称为客观下线。这样对于客户端而言，一切都是透明的。
 
-### 集群模式
+![image](https://upload-images.jianshu.io/upload_images/11320039-3f40b17c0412116c.png?imageMogr2/auto-orient/strip|imageView2/2/w/747/format/webp)
+* 哨兵与master建立IFON链接(INFO指令获取1 master信息 2 从节点信息)
+* 与所有服务器建立命令链接和订阅链接包括master(哨兵从主服务器中获取从服务器信息)
+###### Sentinel之间会建立命令连接但是不会建立订阅连接
+#### Sentinel之间如何建立互相发现
+* 通过对redis节点的统一频道订阅一个Sentinel发送的消息会被其他Sentinel收到从而更新自己的Sentinels字典
+#### 自动故障转移
+* 当Master不能正常操作时哨兵会开始一次故障转移。
+* 它会将失效的Master的其中一个Slave升级为新的Master，并让其他Slave改为复制新的Master。
+* 当客户端试图连接失效的Master时，集群会向客户端显示新的Master的地址。
+* Master和Slave切换后，Master的redis.conf、Slave的reids.conf和senisentinel的sentinel.conf配置文件的内容都会相应的改变，即，Master主服务器的redis.conf配置文件中会多一行slaveof的配置，sentinel.conf的监控目标会随之调换。
+![image](https://upload-images.jianshu.io/upload_images/15083002-718b61c5cddef066.PNG?imageMogr2/auto-orient/strip|imageView2/2/format/webp)
+#### 如何选举新的master 故障处理细节
+![image](https://upload-images.jianshu.io/upload_images/15083002-31cc20da18483120.PNG?imageMogr2/auto-orient/strip|imageView2/2/w/740/format/webp)
+1. 每个sentinel进程每秒钟一次的频率向整个集群中Master、Slave以及其它Sentinel进程发送一个PING命令。
+2. 如果一个实例（instance）距离最后一次有效回复PING命令超过down-after-milliseconds选项所指定的值，这个实例会被sentinel进程标记为主观下线（SDOWN）。
+3. 如果一个Master主服务器被标记为主观下线（SDOWN），则正在监视这个Master主服务器的所有 Sentinel进程要以每秒一次的频率确认Master主服务器的确进入了主观下线状态。
+4. 当有足够数量的 Sentinel进程（大于等于配置文件指定的值）在指定的时间范围内确认Master主服务器进入了主观下线状态（SDOWN）， 则Master主服务器会被标记为客观下线（ODOWN）。
+5. 在一般情况下， 每个 Sentinel进程会以每 10 秒一次的频率向集群中的所有Master主服务器、Slave从服务器发送 INFO 命令。
+6. 当Master主服务器被 Sentinel进程标记为客观下线（ODOWN）时，Sentinel进程向下线的 Master主服务器的所有 Slave从服务器发送 INFO 命令的频率会从 10 秒一次改为每秒一次。
+7. 若没有足够数量的 Sentinel进程同意 Master主服务器下线， Master主服务器的客观下线状态就会被移除。若 Master主服务器重新向 Sentinel进程发送 PING 命令返回有效回复，Master主服务器的主观下线状态就会被移除。
+#### 哨兵的leader选举
+
+* 如果主节点被判定为客观下线之后，就要选取一个哨兵节点来完成后面的故障转移工作，选举出一个leader的流程如下:
+1. 每个在线的哨兵节点都可以成为领导者，当它确认（比如哨兵3）主节点下线时，会向其它哨兵发is-master-down-by-addr命令，征求判断并要求将自己设置为领导者，由领导者处理故障转移；
+2. 当其它哨兵收到此命令时，可以同意或者拒绝它成为领导者；
+3. 如果哨兵3发现自己在选举的票数大于等于num(sentinels)/2+1时，将成为领导者，如果没有超过，继续选举…………
+
+![image](https://img2018.cnblogs.com/blog/1382244/201905/1382244-20190506155956342-1186812006.png)
+#### 任命新的master
+* sentinel状态数据结构中保存了主服务的所有从服务信息，领头sentinel按照如下的规则从从服务列表中挑选出新的主服务
+
+1. 过滤掉主观下线的节点 
+2. 选择slave-priority最高的节点，如果由则返回没有就继续选择
+3. 选择出复制偏移量最大的系节点，因为复制便宜量越大则数据复制的越完整，如果由就返回了，没有就继续
+4. 选择run_id最小的节点
+![image](https://img2018.cnblogs.com/blog/1382244/201905/1382244-20190506160701394-131033031.png)
+######   更新主从状态
+* 通过slaveof no one命令，让选出来的从节点成为主节点；并通过slaveof命令让其他节点成为其从节点。 将已下线的主节点设置成新的主节点的从节点，当其回复正常时，复制新的主节点，变成新的主节点的从节点
+同理，当已下线的服务重新上线时，sentinel会向其发送slaveof命令，让其成为新主的从
+> 参考 [主从与哨兵](https://www.jianshu.com/p/40212051ccc9) [更新主从](https://www.cnblogs.com/Eugene-Jin/p/10819601.html)
+### [集群模式](https://www.jianshu.com/p/84dbb25cc8dc)
